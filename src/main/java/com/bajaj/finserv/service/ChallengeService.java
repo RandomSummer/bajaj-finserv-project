@@ -30,25 +30,35 @@ public class ChallengeService {
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationStartup() {
         try {
-            System.out.println("Application started. Initiating Bajaj Finserv Health Challenge...");
+            System.out.println("==================================================");
+            System.out.println("Bajaj Finserv Health Challenge - JAVA Qualifier 1");
+            System.out.println("==================================================");
             
             // Step 1: Generate webhook
+            System.out.println("\n[STEP 1] Generating Webhook...");
             WebhookResponse webhookResponse = generateWebhook();
             
             if (webhookResponse != null) {
-                System.out.println("Webhook generated successfully");
-                System.out.println("Webhook URL: " + webhookResponse.getWebhookUrl());
-                System.out.println("Access Token: " + webhookResponse.getAccessToken());
+                System.out.println("✓ Webhook generated successfully");
+                System.out.println("  Webhook URL: " + webhookResponse.getWebhookUrl());
+                System.out.println("  Access Token: " + webhookResponse.getAccessToken().substring(0, 30) + "...");
                 
-                // Step 2: Solve the problem
-                String regNo = "REG12347"; // Using sample registration number
+                // Step 2: Solve the SQL problem (Question 1 - Odd)
+                System.out.println("\n[STEP 2] Solving SQL Problem...");
+                String regNo = "22BCE10153"; // Odd registration number for Question 1
+                System.out.println("  Registration: " + regNo);
+                System.out.println("  Last 2 digits: 53 (Odd) -> Question 1");
+                
                 String sqlSolution = sqlProblemSolver.solveProblem(regNo);
                 
-                System.out.println("SQL Solution generated:");
-                System.out.println(sqlSolution);
+                System.out.println("  ✓ SQL Solution generated:");
+                System.out.println("\n" + sqlSolution);
                 
-                // Step 3: Submit the solution
-                submitSolution(sqlSolution, webhookResponse.getAccessToken());
+                // Step 3: Submit the solution with JWT token
+                System.out.println("\n[STEP 3] Submitting Solution...");
+                submitSolution(sqlSolution, webhookResponse.getWebhookUrl(), webhookResponse.getAccessToken());
+            } else {
+                System.err.println("✗ Failed to generate webhook");
             }
             
         } catch (Exception e) {
@@ -59,7 +69,11 @@ public class ChallengeService {
 
     private WebhookResponse generateWebhook() {
         try {
-            WebhookRequest request = new WebhookRequest("John Doe", "REG12347", "john@example.com");
+            WebhookRequest request = new WebhookRequest(
+                "Sk Sofiquee Fiaz", 
+                "22BCE10153", 
+                "sksofiqueefiaz2015@gmail.com"
+            );
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -69,34 +83,45 @@ public class ChallengeService {
             ResponseEntity<WebhookResponse> response = restTemplate.postForEntity(
                 WEBHOOK_GENERATION_URL, entity, WebhookResponse.class);
             
-            return response.getBody();
+            WebhookResponse webhookResponse = response.getBody();
+            
+            // Fallback to base URL if webhook URL is still null
+            if (webhookResponse != null && webhookResponse.getWebhookUrl() == null) {
+                System.out.println("  Warning: webhook URL is null, using fallback");
+                webhookResponse.setWebhookUrl(TEST_WEBHOOK_BASE_URL);
+            }
+            
+            return webhookResponse;
             
         } catch (Exception e) {
             System.err.println("Error generating webhook: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
 
-    private void submitSolution(String sqlQuery, String accessToken) {
+    private void submitSolution(String sqlQuery, String webhookUrl, String accessToken) {
         try {
             SolutionRequest solutionRequest = new SolutionRequest(sqlQuery);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", accessToken); // Direct token without "Bearer " prefix
+            headers.set("Authorization", accessToken); // JWT token as received
             
             HttpEntity<SolutionRequest> entity = new HttpEntity<>(solutionRequest, headers);
             
-            System.out.println("Submitting solution to: " + TEST_WEBHOOK_BASE_URL);
-            System.out.println("Authorization token: " + accessToken.substring(0, Math.min(20, accessToken.length())) + "...");
-            System.out.println("Request body: " + solutionRequest.getFinalQuery());
+            System.out.println("  Target URL: " + webhookUrl);
+            System.out.println("  Authorization: Bearer Token (JWT)");
             
             ResponseEntity<String> response = restTemplate.postForEntity(
-                TEST_WEBHOOK_BASE_URL, entity, String.class);
+                webhookUrl, entity, String.class);
             
-            System.out.println("Solution submitted successfully!");
-            System.out.println("Response Status: " + response.getStatusCode());
-            System.out.println("Response: " + response.getBody());
+            System.out.println("\n✓ Solution submitted successfully!");
+            System.out.println("  Response Status: " + response.getStatusCode());
+            System.out.println("  Response Body: " + response.getBody());
+            System.out.println("\n==================================================");
+            System.out.println("Challenge Completed Successfully!");
+            System.out.println("==================================================");
             
         } catch (Exception e) {
             System.err.println("Error submitting solution: " + e.getMessage());

@@ -1,0 +1,112 @@
+========================================
+BAJAJ FINSERV HEALTH CHALLENGE - QUICKSTART
+========================================
+
+✅ Java 21 LTS
+✅ Spring Boot 3.2.0
+✅ Question 1 (Odd) Implementation
+
+========================================
+IMPORTANT: UPDATE YOUR DETAILS
+========================================
+
+Before running, update your registration details in:
+src/main/java/com/bajaj/finserv/service/ChallengeService.java
+
+Line 67-71, change:
+    WebhookRequest request = new WebhookRequest(
+        "John Doe",           // ← YOUR NAME
+        "REG12347",          // ← YOUR REGISTRATION NUMBER (must be ODD)
+        "john@example.com"   // ← YOUR EMAIL
+    );
+
+========================================
+HOW TO RUN
+========================================
+
+Option 1: Using Maven
+---------------------
+mvn spring-boot:run
+
+Option 2: Using JAR
+-------------------
+java -jar target\finserv-health-challenge-0.0.1-SNAPSHOT.jar
+
+Option 3: Using Batch File (Windows)
+------------------------------------
+run.bat
+
+========================================
+WHAT HAPPENS WHEN YOU RUN
+========================================
+
+Step 1: Generate Webhook
+  → Sends POST to: https://bfhldevapigw.healthrx.co.in/hiring/generateWebhook/JAVA
+  → Receives: webhook URL + JWT access token
+
+Step 2: Solve SQL Problem
+  → Checks last 2 digits of regNo
+  → Odd (e.g., 47) → Question 1
+  → Generates SQL query for highest salaried employee per department
+  → Excludes payments made on 1st day of month
+
+Step 3: Submit Solution
+  → POSTs SQL solution to webhook URL
+  → Uses JWT token for authorization
+  → Receives confirmation
+
+========================================
+SQL SOLUTION (QUESTION 1)
+========================================
+
+Finds highest salaried employee per department,
+excluding payments on 1st day of month.
+
+Output columns:
+- DEPARTMENT_NAME
+- SALARY (total, excluding 1st day)
+- EMPLOYEE_NAME (format: "First Last")
+- AGE (calculated from DOB)
+
+========================================
+TROUBLESHOOTING
+========================================
+
+Build fails?
+  → Ensure Java 21 is installed: java -version
+  → Clean build: mvn clean package
+
+Connection errors?
+  → Check internet connection
+  → Verify API endpoint is accessible
+
+401 Unauthorized?
+  → JWT token should be in Authorization header
+  → Check if token is being sent correctly
+
+========================================
+PROJECT FILES
+========================================
+
+Key files:
+- ChallengeService.java   → Main orchestrator
+- SqlProblemSolver.java   → SQL query generator
+- WebhookRequest.java     → Request model
+- WebhookResponse.java    → Response model
+- SolutionRequest.java    → Solution submission model
+
+========================================
+REQUIREMENTS MET
+========================================
+
+✅ Spring Boot application
+✅ RestTemplate for HTTP calls
+✅ No controller endpoints (auto-run on startup)
+✅ Webhook generation on startup
+✅ SQL problem solving based on regNo
+✅ JWT authentication
+✅ Question 1 (Odd) implemented
+
+========================================
+Good luck with your submission! 🚀
+========================================
